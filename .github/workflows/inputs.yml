@@ -1,0 +1,15 @@
+name: Inputs test file
+on:
+    workflow_dispatch:
+        inputs:
+            synapse_name:
+                description: Takes the name of the synapse
+                required: true
+                default: "Synw-k2c-prod-weu-001"
+jobs:
+    Print:
+     runs-on: ubuntu-latest
+     steps:
+        - name: print the name of the synapse
+          run: |
+            echo "The synapse name is ${{github.event.inputs.synapse_name}}"
