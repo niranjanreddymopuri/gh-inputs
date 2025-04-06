@@ -6,6 +6,16 @@ on:
                 description: Takes the name of the synapse
                 required: true
                 default: "Synw-k2c-prod-weu-001"
+                type: string
+            log-level:
+                description: filter the logs
+                required: false
+                default: warning
+                type: choice
+                options:
+                    - warning
+                    - info
+                    - debug
 jobs:
     Print:
      runs-on: ubuntu-latest
