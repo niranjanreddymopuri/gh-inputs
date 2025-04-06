@@ -9,6 +9,7 @@ on:
 jobs:
     Print:
      runs-on: ubuntu-latest
+     if: ${{github.event.inputs.synapse_name}} != ''
      steps:
         - name: print the name of the synapse
           run: |
