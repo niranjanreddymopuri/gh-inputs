@@ -1,26 +1,34 @@
 name: Inputs test file
 on:
     workflow_dispatch:
-        inputs:
-            synapse_name:
-                description: Takes the name of the synapse
-                required: true
-                default: "Synw-k2c-prod-weu-001"
-                type: string
-            log-level:
-                description: filter the logs
-                required: false
-                default: warning
-                type: choice
-                options:
-                    - warning
-                    - info
-                    - debug
 jobs:
-    Print:
-     runs-on: ubuntu-latest
-     if: ${{github.event.inputs.synapse_name}} != ''
-     steps:
-        - name: print the name of the synapse
-          run: |
-            echo "The synapse name is ${{github.event.inputs.synapse_name}}"
+    read_vault_secret:
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+            id-token: write
+        steps:
+            - name: Debug OIDC Token
+              run: |
+                 curl -s -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+                 "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=https://github.com/mniranjanrorg" | jq
+
+            - name: Read Vault Secrets
+              uses: hashicorp/vault-action@v3.0.0
+              with:
+                url: "http://ec2-52-87-173-144.compute-1.amazonaws.com:8200/"
+                method: jwt
+                role: "aabk_jwt_role"
+                secrets: |
+                  kv/data/aabk/dev/pipeline/sp username | USERNAME
+                  kv/data/aabk/dev/pipeline/sp password | PASSWORD
+            - name: Debug secrets (masked)
+              run: |
+                echo "Username: ${{ secrets.USERNAME }}"  # Will be masked in logs
+                echo "Password: ${{ secrets.PASSWORD }}"  # Will be masked in logs
+    
+                # Alternative for testing (values will be visible in logs)
+                echo "::add-mask::${{ env.USERNAME }}"
+                echo "::add-mask::${{ env.PASSWORD }}"
+                echo "Unmasked Username: ${{ env.USERNAME }}"
+                echo "Unmasked Password: ${{ env.PASSWORD }}"
