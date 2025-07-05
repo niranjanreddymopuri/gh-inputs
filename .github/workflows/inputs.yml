@@ -8,28 +8,38 @@ jobs:
             contents: read
             id-token: write
         steps:
-            - name: Debug OIDC Token
-              run: |
-                 curl -s -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
-                 "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=https://github.com/mniranjanrorg" | jq
+            
+           - name: Troubleshooting
+             run: |
+                curl -sSL -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL" | \
+                jq "{ jwt: .value, role: \"$VAULT_ROLE\" }" > ./token.json
+            
+                 echo 'GitHub Actions Token Claims'
+                 cat ./token.json | jq -r '.jwt | split(".") | .[1] | @base64d' | jq
 
-            - name: Read Vault Secrets
-              uses: hashicorp/vault-action@v3.0.0
-              with:
-                url: "http://ec2-52-87-173-144.compute-1.amazonaws.com:8200/"
-                method: jwt
-                role: "aabk_jwt_role"
-                secrets: |
-                  /v1/kv/data/aabk/dev/pipeline/sp username | USER_NAME;
-                  /v1/kv/data/aabk/dev/pipeline/sp password | PASS_WORD
+                 echo 'Vault Login Response'
+                 curl -sSLf -X POST -H "Content-Type: application/json" -H "X-Vault-Namespace: admin" --data @token.json $VAULT_URL/v1/auth/$VAULT_AUTH_PATH/login
 
-            - name: Debug secrets (masked)
-              run: |
-                echo "Username: ${{ secrets.USER_NAME }}"  # Will be masked in logs
-                echo "Password: ${{ secrets.PASS_WORD }}"  # Will be masked in logs
+                 # Remove the token file when we're done (if we don't fail)
+                 rm ./token.json
+
+           - name: Read Vault Secrets
+             uses: hashicorp/vault-action@v3.0.0
+             with:
+                    url: "http://ec2-52-87-173-144.compute-1.amazonaws.com:8200/"
+                    method: jwt
+                    role: "aabk_jwt_role"
+                    secrets: |
+                        /v1/kv/data/aabk/dev/pipeline/sp username | USER_NAME;
+                        /v1/kv/data/aabk/dev/pipeline/sp password | PASS_WORD
+
+           - name: Debug secrets (masked)
+             run: |
+                   echo "Username: ${{ secrets.USER_NAME }}"  # Will be masked in logs
+                   echo "Password: ${{ secrets.PASS_WORD }}"  # Will be masked in logs
     
-                # Alternative for testing (values will be visible in logs)
-                echo "::add-mask::${{ env.USER_NAME }}"
-                echo "::add-mask::${{ env.PASS_WORD }}"
-                echo "Unmasked Username: ${{ env.USER_NAME }}"
-                echo "Unmasked Password: ${{ env.PASS_WORD }}"
+                    # Alternative for testing (values will be visible in logs)
+                    echo "::add-mask::${{ env.USER_NAME }}"
+                    echo "::add-mask::${{ env.PASS_WORD }}"
+                    echo "Unmasked Username: ${{ env.USER_NAME }}"
+                    echo "Unmasked Password: ${{ env.PASS_WORD }}"
