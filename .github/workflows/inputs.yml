@@ -7,8 +7,13 @@ jobs:
         permissions:
             contents: read
             id-token: write
+        env:
+            # Define these variables. Replace with your actual values.
+            # VAULT_URL must include http:// or https:// and the hostname/IP and port
+            VAULT_URL: "http://ec2-52-87-173-144.compute-1.amazonaws.com:8200"
+            VAULT_ROLE: "aabk_jwt_role" # Your Vault JWT role name
+            VAULT_AUTH_PATH: "jwt"
         steps:
-            
            - name: Troubleshooting
              run: |
                 curl -sSL -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL" | \
