@@ -20,9 +20,9 @@ jobs:
                 method: jwt
                 role: "aabk_jwt_role"
                 secrets: |
-                  /v1/kv/data/aabk/dev/pipeline/sp username | USER_NAME
+                  /v1/kv/data/aabk/dev/pipeline/sp username | USER_NAME;
                   /v1/kv/data/aabk/dev/pipeline/sp password | PASS_WORD
-                  
+
             - name: Debug secrets (masked)
               run: |
                 echo "Username: ${{ secrets.USER_NAME }}"  # Will be masked in logs
