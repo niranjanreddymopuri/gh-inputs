@@ -20,15 +20,16 @@ jobs:
                 method: jwt
                 role: "aabk_jwt_role"
                 secrets: |
-                  kv/data/aabk/dev/pipeline/sp username | USERNAME
-                  kv/data/aabk/dev/pipeline/sp password | PASSWORD
+                  /v1/kv/data/aabk/dev/pipeline/sp username | USER_NAME
+                  /v1/kv/data/aabk/dev/pipeline/sp password | PASS_WORD
+                  
             - name: Debug secrets (masked)
               run: |
-                echo "Username: ${{ secrets.USERNAME }}"  # Will be masked in logs
-                echo "Password: ${{ secrets.PASSWORD }}"  # Will be masked in logs
+                echo "Username: ${{ secrets.USER_NAME }}"  # Will be masked in logs
+                echo "Password: ${{ secrets.PASS_WORD }}"  # Will be masked in logs
     
                 # Alternative for testing (values will be visible in logs)
-                echo "::add-mask::${{ env.USERNAME }}"
-                echo "::add-mask::${{ env.PASSWORD }}"
-                echo "Unmasked Username: ${{ env.USERNAME }}"
-                echo "Unmasked Password: ${{ env.PASSWORD }}"
+                echo "::add-mask::${{ env.USER_NAME }}"
+                echo "::add-mask::${{ env.PASS_WORD }}"
+                echo "Unmasked Username: ${{ env.USER_NAME }}"
+                echo "Unmasked Password: ${{ env.PASS_WORD }}"
