@@ -1,4 +1,4 @@
-name: Inputs test file
+name: Read Vault Secrets with OIDC
 on:
     workflow_dispatch:
 jobs:
@@ -20,8 +20,8 @@ jobs:
                 method: jwt
                 role: "aabk_jwt_role"
                 secrets: |
-                  kv/data/aabk/dev/pipeline/sp username | USERNAME
-                  kv/data/aabk/dev/pipeline/sp password | PASSWORD
+                  kv/data/aabk/dev/pipeline/sp/data username | USERNAME
+                  kv/data/aabk/dev/pipeline/sp/data password | PASSWORD
             - name: Debug secrets (masked)
               run: |
                 echo "Username: ${{ secrets.USERNAME }}"  # Will be masked in logs
